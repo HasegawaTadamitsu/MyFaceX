@@ -1,5 +1,4 @@
 <resources>
     <string name="app_name">MyFace</string>
-    <string name="message">Watch face tapped</string>
     <string name="my_analog_name">My Facex</string>
 </resources>

@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.*
-import android.icu.text.SimpleDateFormat
 import android.os.Bundle
 import android.os.Handler
 import android.os.Message
@@ -34,8 +33,8 @@ private const val TAG = "MyFaceX"
  */
 private const val MSG_UPDATE_TIME = 0
 
-private const val HOUR_STROKE_WIDTH = 30f
-private const val MINUTE_STROKE_WIDTH = 20f
+private const val HOUR_STROKE_WIDTH = 10f
+private const val MINUTE_STROKE_WIDTH = 10f
 private const val SECOND_TICK_STROKE_WIDTH = 10f
 private const val CENTER_GAP_AND_CIRCLE_RADIUS = 10f
 
@@ -180,7 +179,7 @@ class MyWatchFace : CanvasWatchFaceService() {
                 color = mWatchHandPinColor
                 strokeWidth = HOUR_STROKE_WIDTH
                 isAntiAlias = true
-                strokeCap = Paint.Cap.ROUND
+                //                strokeCap = Paint.Cap.ROUND
                 setShadowLayer(
                     SHADOW_RADIUS, 0f, 0f, mWatchHandShadowColor
                 )
@@ -190,7 +189,7 @@ class MyWatchFace : CanvasWatchFaceService() {
                 color = mWatchHandPinColor
                 strokeWidth = MINUTE_STROKE_WIDTH
                 isAntiAlias = true
-                strokeCap = Paint.Cap.ROUND
+                //                strokeCap = Paint.Cap.ROUND
                 setShadowLayer(
                     SHADOW_RADIUS, 0f, 0f, mWatchHandShadowColor
                 )
@@ -200,7 +199,7 @@ class MyWatchFace : CanvasWatchFaceService() {
                 color = mWatchHandHighlightColor
                 strokeWidth = SECOND_TICK_STROKE_WIDTH
                 isAntiAlias = true
-                strokeCap = Paint.Cap.ROUND
+                //strokeCap = Paint.Cap.ROUND
                 setShadowLayer(
                     SHADOW_RADIUS, 0f, 0f, mWatchHandShadowColor
                 )
@@ -219,7 +218,7 @@ class MyWatchFace : CanvasWatchFaceService() {
                 color = mWatchHandColor
                 strokeWidth = MINUTE_STROKE_WIDTH
                 isAntiAlias = true
-                strokeCap = Paint.Cap.ROUND
+                // strokeCap = Paint.Cap.ROUND
                 setShadowLayer(
                     SHADOW_RADIUS, 0f, 0f, mWatchHandShadowColor
                 )
@@ -268,9 +267,9 @@ class MyWatchFace : CanvasWatchFaceService() {
             Log.v(TAG, "start updateWatch")
 
             if (mAmbient) {
-                mHourPaint.color = Color.WHITE
-                mMinutePaint.color = Color.WHITE
-                mSecondPaint.color = Color.WHITE
+                mHourPaint.color = Color.GRAY
+                mMinutePaint.color = Color.GRAY
+                mSecondPaint.color = Color.GRAY
                 mTickAndCirclePaint.color = Color.WHITE
 
                 mHourPaint.isAntiAlias = false
@@ -338,9 +337,9 @@ class MyWatchFace : CanvasWatchFaceService() {
             /*
              * Calculate lengths of different hands based on watch screen size.
              */
-            mSecondHandLength = (mCenterX * 0.60).toFloat()
-            sMinuteHandLength = (mCenterX * 0.55).toFloat()
-            sHourHandLength = (mCenterX * 0.40).toFloat()
+            mSecondHandLength = (mCenterX * 0.90).toFloat()
+            sMinuteHandLength = (mCenterX * 0.85).toFloat()
+            sHourHandLength = (mCenterX * 0.65).toFloat()
 
 
             /* Scale loaded background image (more efficient) if surface dimensions change. */
@@ -397,7 +396,11 @@ class MyWatchFace : CanvasWatchFaceService() {
                 WatchFaceService.TAP_TYPE_TAP -> {
                     // The user has completed the tap gesture.
                     // TODO: Add code to handle the tap gesture.
-                    Toast.makeText(applicationContext, R.string.message, Toast.LENGTH_SHORT)
+                    Toast.makeText(
+                        applicationContext,
+                        mBattryLevel.toString() + "%",
+                        Toast.LENGTH_SHORT
+                    )
                         .show()
                 }
             }
@@ -506,15 +509,9 @@ class MyWatchFace : CanvasWatchFaceService() {
             canvas.rotate(hoursRotation, mCenterX, mCenterY)
             canvas.drawLine(
                 mCenterX,
-                mCenterY - CENTER_GAP_AND_CIRCLE_RADIUS,
+                mCenterY,
                 mCenterX,
                 mCenterY - sHourHandLength,
-                mHourPaint
-            )
-            canvas.drawCircle(
-                mCenterX,
-                mCenterY - sHourHandLength,
-                HOUR_STROKE_WIDTH / 2f,
                 mHourPaint
             )
             canvas.rotate(-hoursRotation, mCenterX, mCenterY)
@@ -523,15 +520,9 @@ class MyWatchFace : CanvasWatchFaceService() {
             canvas.rotate(minutesRotation, mCenterX, mCenterY)
             canvas.drawLine(
                 mCenterX,
-                mCenterY - CENTER_GAP_AND_CIRCLE_RADIUS,
+                mCenterY,
                 mCenterX,
                 mCenterY - sMinuteHandLength,
-                mMinutePaint
-            )
-            canvas.drawCircle(
-                mCenterX,
-                mCenterY - sMinuteHandLength,
-                MINUTE_STROKE_WIDTH / 2f,
                 mMinutePaint
             )
             canvas.rotate(-(minutesRotation), mCenterX, mCenterY)
@@ -541,24 +532,19 @@ class MyWatchFace : CanvasWatchFaceService() {
                 canvas.rotate(secondsRotation, mCenterX, mCenterY)
                 canvas.drawLine(
                     mCenterX,
-                    mCenterY - CENTER_GAP_AND_CIRCLE_RADIUS,
+                    mCenterY,
                     mCenterX,
                     mCenterY - mSecondHandLength,
                     mSecondPaint
                 )
-/*                canvas.drawCircle(
-                    mCenterX,
-                    mCenterY - mSecondHandLength,
-                    SECOND_TICK_STROKE_WIDTH,
-                    mSecondPaint)
-*/                canvas.rotate(-secondsRotation, mCenterX, mCenterY)
+                canvas.rotate(-secondsRotation, mCenterX, mCenterY)
             } else {
                 // nothing
             }
 
             // write date
             mClockFontPaint.setTextAlign(Paint.Align.CENTER)
-            mClockFontPaint.setTextSize((FONT_SIZE * 1 / 2f))
+            mClockFontPaint.setTextSize((FONT_SIZE * 1 / 2f * 1.1f))
             mClockFontPaint.setShadowLayer(
                 SHADOW_RADIUS, 0f, 0f, Color.BLACK
             )
@@ -579,7 +565,7 @@ class MyWatchFace : CanvasWatchFaceService() {
                 mClockFontPaint
             );
 
-            mClockFontPaint.setTextSize(FONT_SIZE)
+            mClockFontPaint.setTextSize(FONT_SIZE * 1.1f)
             mClockFontPaint.setShadowLayer(FONT_SIZE, 5f, 5f, Color.BLACK)
             var clock_str = ""
 
@@ -614,12 +600,12 @@ class MyWatchFace : CanvasWatchFaceService() {
             if (battery_percent <= 40) {
                 mClockFontPaint.color = Color.RED
             } else {
-                mClockFontPaint.color = Color.BLACK
+                mClockFontPaint.color = Color.WHITE
             }
             canvas.drawText(
                 battery_str, mCenterX, mCenterY + FONT_SIZE * 2,
                 mClockFontPaint
-            );
+            )
             //restor
             mClockFontPaint.setTextSize(FONT_SIZE)
             mClockFontPaint.color = old_color
@@ -673,6 +659,7 @@ class MyWatchFace : CanvasWatchFaceService() {
         }
 
         private fun unBatteryRegisterReceiver() {
+            Log.v(TAG, "start unBatteryRegisterReceiver")
             if (!mRegisteredBatteryReceiver) {
                 return
             }
