@@ -5,20 +5,19 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.*
+import android.os.BatteryManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.Message
-import androidx.palette.graphics.Palette
 import android.support.wearable.watchface.CanvasWatchFaceService
 import android.support.wearable.watchface.WatchFaceService
 import android.support.wearable.watchface.WatchFaceStyle
+import android.util.Log
 import android.view.SurfaceHolder
 import android.widget.Toast
-import android.os.BatteryManager
-import android.util.Log
+import androidx.palette.graphics.Palette
 import java.lang.ref.WeakReference
-import java.util.Calendar
-import java.util.TimeZone
+import java.util.*
 
 /**
  * Updates rate in milliseconds for interactive mode. We update once a second to advance the
@@ -87,7 +86,7 @@ class MyWatchFace : CanvasWatchFaceService() {
         private var mCenterX: Float = 0F
         private var mCenterY: Float = 0F
 
-        private var mSecondHandLength: Float = 0F
+        private var sSecondHandLength: Float = 0F
         private var sMinuteHandLength: Float = 0F
         private var sHourHandLength: Float = 0F
 
@@ -177,9 +176,9 @@ class MyWatchFace : CanvasWatchFaceService() {
 
             mHourPaint = Paint().apply {
                 color = mWatchHandPinColor
-                strokeWidth = HOUR_STROKE_WIDTH
+                strokeWidth = 2.0f // HOUR_STROKE_WIDTH
                 isAntiAlias = true
-                //                strokeCap = Paint.Cap.ROUND
+                strokeCap = Paint.Cap.ROUND
                 setShadowLayer(
                     SHADOW_RADIUS, 0f, 0f, mWatchHandShadowColor
                 )
@@ -187,9 +186,9 @@ class MyWatchFace : CanvasWatchFaceService() {
 
             mMinutePaint = Paint().apply {
                 color = mWatchHandPinColor
-                strokeWidth = MINUTE_STROKE_WIDTH
+                strokeWidth = 2.0f // MINUTE_STROKE_WIDTH
                 isAntiAlias = true
-                //                strokeCap = Paint.Cap.ROUND
+                strokeCap = Paint.Cap.ROUND
                 setShadowLayer(
                     SHADOW_RADIUS, 0f, 0f, mWatchHandShadowColor
                 )
@@ -197,9 +196,9 @@ class MyWatchFace : CanvasWatchFaceService() {
 
             mSecondPaint = Paint().apply {
                 color = mWatchHandHighlightColor
-                strokeWidth = SECOND_TICK_STROKE_WIDTH
+                strokeWidth = 2.0f // SECOND_TICK_STROKE_WIDTH
                 isAntiAlias = true
-                //strokeCap = Paint.Cap.ROUND
+                strokeCap = Paint.Cap.ROUND
                 setShadowLayer(
                     SHADOW_RADIUS, 0f, 0f, mWatchHandShadowColor
                 )
@@ -218,15 +217,15 @@ class MyWatchFace : CanvasWatchFaceService() {
                 color = mWatchHandColor
                 strokeWidth = MINUTE_STROKE_WIDTH
                 isAntiAlias = true
-                // strokeCap = Paint.Cap.ROUND
+                strokeCap = Paint.Cap.ROUND
                 setShadowLayer(
                     SHADOW_RADIUS, 0f, 0f, mWatchHandShadowColor
                 )
             }
-            mClockFontPaint.setTextSize(FONT_SIZE)
-            mClockFontPaint.setAntiAlias(true)
-            mClockFontPaint.setTypeface(Typeface.DEFAULT_BOLD)
-            mClockFontPaint.setTextAlign(Paint.Align.CENTER)
+            mClockFontPaint.textSize = FONT_SIZE
+            mClockFontPaint.isAntiAlias = true
+            mClockFontPaint.typeface = Typeface.DEFAULT_BOLD
+            mClockFontPaint.textAlign = Paint.Align.CENTER
         }
 
         override fun onDestroy() {
@@ -247,7 +246,6 @@ class MyWatchFace : CanvasWatchFaceService() {
         override fun onTimeTick() {
             super.onTimeTick()
             Log.v(TAG, "start onTimeTick")
-
             invalidate()
         }
 
@@ -337,7 +335,7 @@ class MyWatchFace : CanvasWatchFaceService() {
             /*
              * Calculate lengths of different hands based on watch screen size.
              */
-            mSecondHandLength = (mCenterX * 0.90).toFloat()
+            sSecondHandLength = (mCenterX * 0.90).toFloat()
             sMinuteHandLength = (mCenterX * 0.85).toFloat()
             sHourHandLength = (mCenterX * 0.65).toFloat()
 
@@ -395,7 +393,6 @@ class MyWatchFace : CanvasWatchFaceService() {
                 }
                 WatchFaceService.TAP_TYPE_TAP -> {
                     // The user has completed the tap gesture.
-                    // TODO: Add code to handle the tap gesture.
                     Toast.makeText(
                         applicationContext,
                         mBattryLevel.toString() + "%",
@@ -456,11 +453,11 @@ class MyWatchFace : CanvasWatchFaceService() {
                     ti = 12
                 }
                 if (ti == 12 || ti == 6) {
-                    mClockFontPaint.setTextAlign(Paint.Align.CENTER)
+                    mClockFontPaint.textAlign = Paint.Align.CENTER
                 } else if (1 <= ti && ti <= 5) {
-                    mClockFontPaint.setTextAlign(Paint.Align.RIGHT)
+                    mClockFontPaint.textAlign = Paint.Align.RIGHT
                 } else if (7 <= ti && ti <= 11) {
-                    mClockFontPaint.setTextAlign(Paint.Align.LEFT)
+                    mClockFontPaint.textAlign = Paint.Align.LEFT
                 }
 
                 var ajustY = 0
@@ -470,17 +467,17 @@ class MyWatchFace : CanvasWatchFaceService() {
                     ajustY = (FONT_SIZE / 3f).toInt()
                 }
                 if (ti == 3 || ti == 6 || ti == 9 || ti == 12) {
-                    mClockFontPaint.setTextSize(FONT_SIZE)
+                    mClockFontPaint.textSize = FONT_SIZE
                 } else {
-                    mClockFontPaint.setTextSize(FONT_SIZE * 2f / 3f)
+                    mClockFontPaint.textSize = FONT_SIZE * 2f / 3f
                 }
                 canvas.drawText(
                     ti.toString(),
                     mCenterX + (innerX) * 1.0f,
                     mCenterY + (innerY) * 1.0f + ajustY, mClockFontPaint
-                );
+                )
             }
-            mClockFontPaint.setTextSize(FONT_SIZE)
+            mClockFontPaint.textSize = FONT_SIZE
 
             /*
              * These calculations reflect the rotation in degrees per unit of time, e.g.,
@@ -505,46 +502,108 @@ class MyWatchFace : CanvasWatchFaceService() {
              * Otherwise, we only update the watch face once a minute.
              */
 
-            // drow hour line and circle
+            // drow hour line
             canvas.rotate(hoursRotation, mCenterX, mCenterY)
-            canvas.drawLine(
-                mCenterX,
+            val pts_hour = floatArrayOf(
+                mCenterX - HOUR_STROKE_WIDTH / 2.0f,
                 mCenterY,
+                mCenterX + HOUR_STROKE_WIDTH / 2.0f,
+                mCenterY,
+
+                mCenterX + HOUR_STROKE_WIDTH / 2.0f,
+                mCenterY,
+                mCenterX + HOUR_STROKE_WIDTH / 2.0f,
+                mCenterY - sHourHandLength / 3.0f,
+
+                mCenterX + HOUR_STROKE_WIDTH / 2.0f,
+                mCenterY - sHourHandLength / 3.0f,
                 mCenterX,
                 mCenterY - sHourHandLength,
-                mHourPaint
+
+                mCenterX,
+                mCenterY - sHourHandLength,
+                mCenterX - HOUR_STROKE_WIDTH / 2.0f,
+                mCenterY - sHourHandLength / 3.0f,
+
+                mCenterX - HOUR_STROKE_WIDTH / 2.0f,
+                mCenterY - sHourHandLength / 3.0f,
+                mCenterX - HOUR_STROKE_WIDTH / 2.0f,
+                mCenterY
             )
+
+            canvas.drawLines(pts_hour, mHourPaint)
             canvas.rotate(-hoursRotation, mCenterX, mCenterY)
 
-            // minus line and circle
+            // minus lines
             canvas.rotate(minutesRotation, mCenterX, mCenterY)
-            canvas.drawLine(
-                mCenterX,
+            val pts_minute = floatArrayOf(
+                mCenterX - MINUTE_STROKE_WIDTH / 2.0f,
                 mCenterY,
+                mCenterX + MINUTE_STROKE_WIDTH / 2.0f,
+                mCenterY,
+
+                mCenterX + MINUTE_STROKE_WIDTH / 2.0f,
+                mCenterY,
+                mCenterX + MINUTE_STROKE_WIDTH / 2.0f,
+                mCenterY - sMinuteHandLength / 3.0f,
+
+                mCenterX + MINUTE_STROKE_WIDTH / 2.0f,
+                mCenterY - sMinuteHandLength / 3.0f,
                 mCenterX,
                 mCenterY - sMinuteHandLength,
-                mMinutePaint
+
+                mCenterX,
+                mCenterY - sMinuteHandLength,
+                mCenterX - MINUTE_STROKE_WIDTH / 2.0f,
+                mCenterY - sHourHandLength / 3.0f,
+
+                mCenterX - MINUTE_STROKE_WIDTH / 2.0f,
+                mCenterY - sHourHandLength / 3.0f,
+                mCenterX - MINUTE_STROKE_WIDTH / 2.0f,
+                mCenterY
             )
+            canvas.drawLines(pts_minute, mMinutePaint)
             canvas.rotate(-(minutesRotation), mCenterX, mCenterY)
 
-            // seconds line & circle
+            // seconds line 
             if (!mAmbient) {
                 canvas.rotate(secondsRotation, mCenterX, mCenterY)
-                canvas.drawLine(
-                    mCenterX,
+                val pts_second = floatArrayOf(
+                    mCenterX - SECOND_TICK_STROKE_WIDTH / 2.0f,
                     mCenterY,
+                    mCenterX + SECOND_TICK_STROKE_WIDTH / 2.0f,
+                    mCenterY,
+
+                    mCenterX + SECOND_TICK_STROKE_WIDTH / 2.0f,
+                    mCenterY,
+                    mCenterX + SECOND_TICK_STROKE_WIDTH / 2.0f,
+                    mCenterY - sSecondHandLength / 3.0f,
+
+                    mCenterX + SECOND_TICK_STROKE_WIDTH / 2.0f,
+                    mCenterY - sSecondHandLength / 3.0f,
                     mCenterX,
-                    mCenterY - mSecondHandLength,
-                    mSecondPaint
+                    mCenterY - sSecondHandLength,
+
+                    mCenterX,
+                    mCenterY - sSecondHandLength,
+                    mCenterX - SECOND_TICK_STROKE_WIDTH / 2.0f,
+                    mCenterY - sSecondHandLength / 3.0f,
+
+                    mCenterX - SECOND_TICK_STROKE_WIDTH / 2.0f,
+                    mCenterY - sSecondHandLength / 3.0f,
+                    mCenterX - SECOND_TICK_STROKE_WIDTH / 2.0f,
+                    mCenterY
                 )
+                canvas.drawLines(pts_second, mSecondPaint)
                 canvas.rotate(-secondsRotation, mCenterX, mCenterY)
+
             } else {
                 // nothing
             }
 
             // write date
-            mClockFontPaint.setTextAlign(Paint.Align.CENTER)
-            mClockFontPaint.setTextSize((FONT_SIZE * 1 / 2f * 1.1f))
+            mClockFontPaint.textAlign = Paint.Align.CENTER
+            mClockFontPaint.textSize = (FONT_SIZE * 1 / 2f * 1.1f)
             mClockFontPaint.setShadowLayer(
                 SHADOW_RADIUS, 0f, 0f, Color.BLACK
             )
@@ -561,11 +620,12 @@ class MyWatchFace : CanvasWatchFaceService() {
             canvas.drawText(
                 date_str,
                 mCenterX,
-                mCenterY - mClockFontPaint.getTextSize(),
+                mCenterY - mClockFontPaint.textSize,
                 mClockFontPaint
-            );
+            )
 
-            mClockFontPaint.setTextSize(FONT_SIZE * 1.1f)
+            // dwaw now time
+            mClockFontPaint.textSize = FONT_SIZE * 1.1f
             mClockFontPaint.setShadowLayer(FONT_SIZE, 5f, 5f, Color.BLACK)
             var clock_str = ""
 
@@ -582,16 +642,15 @@ class MyWatchFace : CanvasWatchFaceService() {
             } else {
                 clock_str = zeroPad(hour.toString()) +
                         ":" +
-                        zeroPad((mCalendar.get(Calendar.MINUTE).toString())) +
-                        "     " // dummy str
+                        zeroPad((mCalendar.get(Calendar.MINUTE).toString())) + "   "
             }
             canvas.drawText(
                 clock_str, mCenterX, mCenterY + FONT_SIZE,
                 mClockFontPaint
-            );
+            )
 
             // battery
-            mClockFontPaint.setTextSize((FONT_SIZE * 1 / 2f))
+            mClockFontPaint.textSize = (FONT_SIZE * 1 / 2f)
             mClockFontPaint.setShadowLayer(FONT_SIZE, 5f, 5f, Color.BLACK)
 
             val battery_percent = mBattryLevel
@@ -607,7 +666,7 @@ class MyWatchFace : CanvasWatchFaceService() {
                 mClockFontPaint
             )
             //restor
-            mClockFontPaint.setTextSize(FONT_SIZE)
+            mClockFontPaint.textSize = FONT_SIZE
             mClockFontPaint.color = old_color
 
             /* Restore the canvas' original orientation. */
@@ -698,5 +757,3 @@ class MyWatchFace : CanvasWatchFaceService() {
         }
     }
 }
-
-
